@@ -20,7 +20,7 @@ Install the app, open it once, turn on the extension, and you're done. No termin
 
 ## Install
 
-1. Move `utubmp3.app` to Applications and open it once.
+1. Download the latest `utubmp3-<version>.dmg` from [Releases](https://github.com/harikanthl/utubmp3/releases), drag `utubmp3.app` to Applications, and open it once. The app is notarized by Apple.
 2. Click **Quit and Open Safari Settings…** and turn on the **utubmp3** extension. Allow it on `youtube.com` when Safari asks.
 3. Open any YouTube video and click **⬇ MP3**.
 
@@ -90,9 +90,18 @@ cd utubmp3
 open utubmp3.xcodeproj     # build & run the utubmp3 scheme
 ```
 
-For unsigned local builds, enable Safari ▸ Develop ▸ Allow Unsigned Extensions.
+In Xcode, set **Signing & Capabilities ▸ Team** to your own team (a free Apple ID works) for both the `utubmp3` and `utubmp3 Extension` targets. If you build without a team ("Sign to Run Locally"), enable Safari ▸ Develop ▸ Allow Unsigned Extensions; Safari turns this off every time it quits.
 
-To distribute the app, sign it with a Developer ID and notarize it. Notarization also requires signing the bundled `ffmpeg` and `qjs` with the hardened runtime. The app target runs without App Sandbox (it starts the helper and saves to `~/Downloads`), so it is meant for direct distribution, not the Mac App Store. The extension target stays sandboxed.
+Building from source doesn't need notarization: Gatekeeper only checks apps downloaded through a browser.
+
+### Releases (notarized)
+
+`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3-<version>.dmg` and `.zip` for GitHub Releases. It needs a Developer ID Application certificate and notarization credentials, either:
+
+- a gitignored `scripts/notarize-env.sh` (or `NOTARIZE_ENV=/path/to/file`) that exports `APPLE_ID`, `APP_PW` (an app-specific password) and `TEAM_ID`, or
+- an existing `notarytool` keychain profile: `NOTARY_PROFILE=<name>`.
+
+The app target runs without App Sandbox (it starts the helper and saves to `~/Downloads`), so it is meant for direct distribution, not the Mac App Store. The extension target stays sandboxed.
 
 ## License
 

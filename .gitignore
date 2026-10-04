@@ -2,3 +2,5 @@ helper/bin/
 __pycache__/
 xcuserdata/
 utubmp3/Resources/bin/
+build/
+scripts/notarize-env.sh
