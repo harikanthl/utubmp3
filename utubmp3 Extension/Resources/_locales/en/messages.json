@@ -1,10 +1,10 @@
 {
     "extension_name": {
-        "message": "utubmp3 Extension",
+        "message": "utubmp3",
         "description": "The display name for the extension."
     },
     "extension_description": {
-        "message": "This is utubmp3 Extension. You should tell us what your extension does here.",
+        "message": "Save the audio of a YouTube video as MP3 using yt-dlp on your Mac.",
         "description": "Description of what the extension does."
     }
 }

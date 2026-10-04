@@ -6,6 +6,28 @@
     <script type="module" src="popup.js"></script>
 </head>
 <body>
-    <strong>Hello World!</strong>
+    <header>utubmp3</header>
+    <p id="not-youtube" hidden>Open a YouTube video to save its audio as MP3.</p>
+    <section id="video" hidden>
+        <img id="thumb" alt="">
+        <div id="title"></div>
+        <div id="channel"></div>
+        <button id="download">Download MP3</button>
+    </section>
+    <div id="status" hidden></div>
+
+    <h2>Recent MP3s</h2>
+    <ul id="files"></ul>
+
+    <form id="editor" hidden>
+        <div id="editor-name"></div>
+        <div id="fields"></div>
+        <div class="row">
+            <button type="submit">Save</button>
+            <button type="button" class="secondary" id="cancel">Cancel</button>
+        </div>
+    </form>
+
+    <footer id="helper">Checking helper…</footer>
 </body>
 </html>

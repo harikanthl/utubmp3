@@ -1,0 +1,26 @@
+#utubmp3-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    margin-left: 8px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 18px;
+    background: var(--yt-spec-badge-chip-background, rgba(0, 0, 0, 0.05));
+    color: var(--yt-spec-text-primary, #0f0f0f);
+    font: 500 14px/36px Roboto, Arial, sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+}
+#utubmp3-btn:hover { background: var(--yt-spec-10-percent-layer, rgba(0, 0, 0, 0.1)); }
+#utubmp3-btn[disabled] { cursor: progress; opacity: 0.7; }
+#utubmp3-btn.utubmp3-done { color: #2ba640; }
+#utubmp3-btn.utubmp3-error { color: #e53935; }
+#utubmp3-btn.utubmp3-floating {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}

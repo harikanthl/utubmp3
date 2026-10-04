@@ -1,15 +1,67 @@
 :root {
     color-scheme: light dark;
-}
-
-body {
-    width: 100px;
-    padding: 10px;
-
-    font-family: system-ui;
-    text-align: center;
+    --bg: #fff;
+    --fg: #0f0f0f;
+    --muted: #606060;
+    --accent: #e53935;
+    --ok: #2ba640;
 }
 
 @media (prefers-color-scheme: dark) {
-    /* Dark Mode styles go here. */
+    :root { --bg: #0f0f0f; --fg: #f1f1f1; --muted: #aaa; }
 }
+
+body {
+    width: 300px;
+    margin: 0;
+    padding: 12px;
+    background: var(--bg);
+    color: var(--fg);
+    font: 13px/1.4 system-ui;
+}
+
+header { font-weight: 600; margin-bottom: 10px; }
+#not-youtube { color: var(--muted); text-align: center; padding: 20px 0; }
+#thumb { width: 100%; border-radius: 8px; display: block; }
+#title { font-weight: 500; margin-top: 8px; }
+#channel { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+
+button {
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font: 600 13px system-ui;
+    cursor: pointer;
+}
+button[disabled] { opacity: 0.6; cursor: progress; }
+button.secondary { background: transparent; color: var(--fg); border: 1px solid var(--muted); margin-top: 6px; }
+
+#status { margin-top: 10px; word-break: break-word; }
+#status.error { color: var(--accent); }
+#status.complete { color: var(--ok); }
+footer { margin-top: 10px; color: var(--muted); font-size: 11px; }
+
+h2 { font-size: 12px; margin: 14px 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+#files { list-style: none; margin: 0; padding: 0; max-height: 180px; overflow-y: auto; }
+#files li { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid color-mix(in srgb, var(--muted) 25%, transparent); }
+#files .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#files button, .row button { width: auto; padding: 4px 8px; font-size: 11px; margin: 0; }
+#files .empty { color: var(--muted); border: 0; }
+
+#editor { margin-top: 10px; }
+#editor-name { font-weight: 500; margin-bottom: 6px; word-break: break-word; }
+#fields label { display: block; font-size: 11px; color: var(--muted); margin-top: 6px; }
+#fields input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 6px;
+    border: 1px solid var(--muted);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--fg);
+    font: 12px system-ui;
+}
+.row { display: flex; gap: 6px; margin-top: 10px; }
