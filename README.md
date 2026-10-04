@@ -1,51 +1,103 @@
 # utubmp3
 
-A Safari extension for macOS that saves the audio of a YouTube video as an MP3, with tools to clean up or edit the MP3's tags.
+A Safari extension for macOS that saves the audio of a YouTube video as an MP3, with built-in tools to clean up or edit the MP3's tags.
 
-## For users
+Install the app, open it once, turn on the extension, and you're done. No terminal, Homebrew or Python needed.
 
-1. Install `utubmp3.app` (drag it to Applications) and open it once.
-2. Click **Quit and Open Safari Settings…** and turn on the utubmp3 extension.
-3. On a YouTube video, click **⬇ MP3** next to Like/Share (it floats in the corner on Shorts), or use the toolbar popup.
+## Features
 
-That's it: no terminal, no Homebrew. MP3s are saved to `~/Downloads`, and their tags are cleaned automatically. The first download asks for permission to access the Downloads folder.
+- **One-click MP3**: a **⬇ MP3** button next to Like/Share on YouTube videos (it floats in the corner on Shorts), plus a toolbar popup.
+- **Best-quality audio** converted to MP3, with the video thumbnail embedded as cover art.
+- **Automatic tag cleanup**: every download gets proper tags (title, singers, album/movie, composer, lyricist, label) parsed from the video's description. Hashtags, social links, URLs and the duplicated description are removed, and the file is renamed to `Title - Album.mp3`.
+- **Tag editor**: the popup lists recent MP3s in `~/Downloads` with **Clean** and **Edit** buttons. Edit lets you change any tag; an empty field removes it. Audio and cover art are never re-encoded.
+- **Always up to date**: yt-dlp updates itself daily, so downloads keep working when YouTube changes.
+- **Runs locally**: nothing leaves your Mac except the download from YouTube.
 
-The popup also lists recent MP3s in `~/Downloads`:
+## Requirements
 
-- **Clean** rebuilds the tags from the video's title and description (title, singers, album, composer, lyricist, label), drops hashtags, links and the duplicated description, and renames the file to `Title - Album.mp3`.
-- **Edit** lets you change any tag; an empty field removes it.
+- macOS 26.2 or later (the app target's deployment target)
+- Safari
 
-Tag changes use ffmpeg stream copy, so the audio and cover art are never re-encoded.
+## Install
+
+1. Move `utubmp3.app` to Applications and open it once.
+2. Click **Quit and Open Safari Settings…** and turn on the **utubmp3** extension. Allow it on `youtube.com` when Safari asks.
+3. Open any YouTube video and click **⬇ MP3**.
+
+MP3s are saved to `~/Downloads`. On the first download, macOS asks whether utubmp3 may access the Downloads folder; click **Allow**.
+
+Opening the app also sets up a small background helper (see [How it works](#how-it-works)). It starts automatically at every login, and macOS may show a "Background Items Added" notification the first time.
+
+## Use
+
+| Where | What to do |
+|---|---|
+| YouTube video page | Click **⬇ MP3**. It changes to ⏳ while converting and ✅ **Saved** when done; click ✅ to show the file in Finder. Hover over ⚠️ to see the error. |
+| Toolbar popup | **Download MP3** for the current video, with a **Show in Finder** button when it finishes. |
+| Popup ▸ Recent MP3s | **Clean** fixes a file's tags automatically; **Edit** opens a form with every tag. |
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| "Helper not running" in the popup | Open the utubmp3 app once; it restarts the helper. |
+| "Helper is still setting up" | On first run, the helper is downloading yt-dlp (about 35 MB). Wait a moment. |
+| Download fails with `HTTP Error 403` | Usually fixed by yt-dlp's daily update; quitting and reopening the app forces an update check. Age-restricted or members-only videos aren't supported. |
+| Slow downloads | Without Deno or Node installed, the helper uses the bundled QuickJS to solve YouTube's challenges, which takes about 15–20 seconds per video. Installing [Deno](https://deno.com) or Node 22+ makes it faster; they're used automatically. |
+| Anything else | Check the helper log at `~/Library/Logs/utubmp3-helper.log`. |
+
+## Uninstall
+
+1. Turn off the extension in Safari Settings ▸ Extensions.
+2. Remove the background helper and its files:
+   ```sh
+   launchctl bootout gui/$(id -u)/com.harikanthlingutla.utubmp3.helper
+   rm ~/Library/LaunchAgents/com.harikanthlingutla.utubmp3.helper.plist
+   rm -rf ~/Library/Application\ Support/utubmp3 ~/Library/Logs/utubmp3-helper.log
+   ```
+3. Delete `utubmp3.app`.
 
 ## How it works
 
-Safari extensions can't run programs, so the app includes a background helper: the same executable started as `utubmp3 --helper`. Opening the app registers it as a login item (`~/Library/LaunchAgents/com.harikanthlingutla.utubmp3.helper.plist`), so it starts at every login and restarts if it exits. The extension talks to it on `http://127.0.0.1:8765`, and the helper refuses requests from web pages.
+Safari extensions can't run programs, so the app includes a background helper: the same executable started as `utubmp3 --helper`. Each time you open the app, it registers the helper as a per-user launch agent, so it starts at login, restarts if it exits, and always points at the current copy of the app.
 
-| Part | Where |
+```
+YouTube page ──► Safari extension ──HTTP──► helper (127.0.0.1:8765) ──► yt-dlp + ffmpeg ──► ~/Downloads
+```
+
+- The helper listens only on `127.0.0.1` and refuses requests that come from web pages.
+- It only accepts YouTube video links, and it only reads or changes `.mp3` files directly inside `~/Downloads`.
+- **yt-dlp** is downloaded on first run to `~/Library/Application Support/utubmp3/bin/`, and updated at startup and once a day.
+- **ffmpeg** is bundled in the app.
+- **A JS runtime** for YouTube's challenges: Deno or Node if installed, otherwise the bundled QuickJS.
+
+## Project layout
+
+| Path | What's there |
 |---|---|
-| Safari extension (button, popup) | `utubmp3 Extension/Resources/` |
-| Helper (HTTP server, downloads, tags) | `utubmp3/Helper/` |
-| Login-item registration | `utubmp3/HelperInstaller.swift` |
+| `utubmp3 Extension/Resources/` | Safari extension: `content.js` (MP3 button), `popup.*` (popup and tag editor), `background.js` (talks to the helper) |
+| `utubmp3/Helper/` | Background helper: `HelperServer.swift` (endpoints, downloads), `HTTPServer.swift`, `Tags.swift` (clean/edit), `Tools.swift` (yt-dlp, ffmpeg, JS runtime) |
+| `utubmp3/HelperInstaller.swift` | Registers the launch agent |
+| `utubmp3/main.swift` | Starts the app, or the helper when run with `--helper` |
+| `scripts/fetch-tools.sh` | Downloads the bundled ffmpeg and QuickJS |
 
-The helper uses:
-
-- **yt-dlp**: downloaded on first run to `~/Library/Application Support/utubmp3/bin/`, and updated at startup and once a day.
-- **ffmpeg**: bundled in the app.
-- **A JS runtime** for YouTube's challenges: Deno or Node if installed (faster), otherwise the bundled QuickJS.
-
-Helper log: `~/Library/Logs/utubmp3-helper.log`.
-
-## Building
+## Building from source
 
 ```sh
-./scripts/fetch-tools.sh   # downloads ffmpeg + QuickJS into utubmp3/Resources/bin (not committed)
+git clone https://github.com/harikanthl/utubmp3.git
+cd utubmp3
+./scripts/fetch-tools.sh   # ffmpeg + QuickJS into utubmp3/Resources/bin (not committed)
 open utubmp3.xcodeproj     # build & run the utubmp3 scheme
 ```
 
-For unsigned local builds, enable Safari ▸ Develop ▸ Allow Unsigned Extensions. To give the app to other people, sign it with a Developer ID and notarize it. Notarization also requires signing the bundled `ffmpeg` and `qjs` with the hardened runtime.
+For unsigned local builds, enable Safari ▸ Develop ▸ Allow Unsigned Extensions.
+
+To distribute the app, sign it with a Developer ID and notarize it. Notarization also requires signing the bundled `ffmpeg` and `qjs` with the hardened runtime. The app target runs without App Sandbox (it starts the helper and saves to `~/Downloads`), so it is meant for direct distribution, not the Mac App Store. The extension target stays sandboxed.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). The bundled and downloaded tools keep their own licenses (FFmpeg is GPLv3); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+utubmp3 is released under the [MIT License](LICENSE).
 
-Only download content you have the rights to.
+The bundled and downloaded tools keep their own licenses: FFmpeg (GPLv3), QuickJS-NG (MIT) and yt-dlp (Unlicense). If you distribute a built app, follow their terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Parts of the helper and extension are adapted from [opalsaints/yt-dlp-chrome-extension](https://github.com/opalsaints/yt-dlp-chrome-extension) (MIT).
+
+Only download content you have the rights to, such as your own uploads or openly licensed videos. Downloading from YouTube may be against its Terms of Service.
