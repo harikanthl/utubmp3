@@ -1,5 +1,5 @@
 // Relays requests from the content script and popup to the local helper
-// (helper/utubmp3_helper.py), which runs yt-dlp + ffmpeg.
+// (the utubmp3 app running with --helper), which runs yt-dlp + ffmpeg.
 const HELPER = "http://127.0.0.1:8765";
 
 async function call(path, body) {
@@ -13,7 +13,7 @@ async function call(path, body) {
     } catch (e) {
         return {
             status: "error",
-            message: "Helper not running. Start it with: python3 helper/utubmp3_helper.py",
+            message: "Helper not running. Open the utubmp3 app once to start it.",
         };
     }
 }

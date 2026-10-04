@@ -34,7 +34,7 @@ async function checkHelper() {
     if (h.ok) {
         $("helper").textContent = h.ytdlp && h.ffmpeg
             ? "Helper running · saves to ~/Downloads"
-            : "Helper running, but yt-dlp or ffmpeg is missing (restart the helper; brew install ffmpeg)";
+            : "Helper is still setting up (downloading yt-dlp)…";
     } else {
         $("helper").textContent = h.message;
     }

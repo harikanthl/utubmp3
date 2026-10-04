@@ -15,6 +15,14 @@ function show(enabled, useSettingsInsteadOfPreferences) {
     }
 }
 
+function showHelper(status) {
+    const el = document.querySelector(".helper");
+    el.textContent = status === "ready"
+        ? "Background helper is running. It starts automatically at login; MP3s are saved to Downloads."
+        : status;
+    el.classList.toggle("helper-error", status !== "ready");
+}
+
 function openPreferences() {
     webkit.messageHandlers.controller.postMessage("open-preferences");
 }

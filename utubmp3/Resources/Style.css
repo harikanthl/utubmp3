@@ -43,3 +43,13 @@ body.state-off :is(.state-on, .state-unknown) {
 button {
     font-size: 1em;
 }
+
+.helper {
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.helper-error {
+    color: #e53935;
+    opacity: 1;
+}

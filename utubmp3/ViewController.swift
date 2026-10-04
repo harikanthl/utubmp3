@@ -26,6 +26,8 @@ class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHan
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        installHelper(webView)
+
         SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { (state, error) in
             guard let state = state, error == nil else {
                 // Insert code to inform the user that something went wrong.
@@ -39,6 +41,23 @@ class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHan
                     webView.evaluateJavaScript("show(\(state.isEnabled), false)")
                 }
             }
+        }
+    }
+
+    /// Registers the background helper (yt-dlp + ffmpeg runner) and reports its status on the page.
+    private func installHelper(_ webView: WKWebView) {
+        Task {
+            let status: String
+            do {
+                try await Task.detached { try HelperInstaller.install() }.value
+                status = await HelperInstaller.isRunning()
+                    ? "ready"
+                    : "Background helper installed but not responding. Log: ~/Library/Logs/utubmp3-helper.log"
+            } catch {
+                status = "Couldn’t start the background helper: \(error)"
+            }
+            let json = (try? JSONSerialization.data(withJSONObject: [status])).flatMap { String(data: $0, encoding: .utf8) } ?? "[\"\"]"
+            _ = try? await webView.evaluateJavaScript("showHelper(...\(json))")
         }
     }
 

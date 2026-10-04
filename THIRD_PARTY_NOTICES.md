@@ -1,6 +1,6 @@
 # Third-party notices
 
-Parts of `helper/utubmp3_helper.py`, `content.js` and `popup.js` are adapted from
+Parts of `utubmp3/Helper/HelperServer.swift`, `content.js` and `popup.js` are adapted from
 [opalsaints/yt-dlp-chrome-extension](https://github.com/opalsaints/yt-dlp-chrome-extension) (commit d9711ba).
 
 ```
@@ -26,3 +26,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Bundled and downloaded tools
+
+These are not part of this repository. `scripts/fetch-tools.sh` downloads them into
+`utubmp3/Resources/bin` for building, and the app downloads yt-dlp at runtime. They run as
+separate programs and keep their own licenses. If you distribute a built `utubmp3.app`, you
+must comply with them (for FFmpeg, that includes the GPL's source-availability terms).
+
+- **FFmpeg**, static build from https://ffmpeg.martin-riedl.de, configured with
+  `--enable-gpl --enable-version3`, so it is licensed under the **GNU GPL v3**.
+  Source: https://ffmpeg.org/download.html
+- **QuickJS-NG**, https://github.com/quickjs-ng/quickjs, **MIT License**.
+- **yt-dlp**, https://github.com/yt-dlp/yt-dlp, **The Unlicense**. It is downloaded at runtime
+  into `~/Library/Application Support/utubmp3/bin` and self-updates.
