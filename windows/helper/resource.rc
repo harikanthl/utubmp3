@@ -1,0 +1,29 @@
+// Icon and version info for utubmp3.exe; windows/build.sh compiles this to a .syso.
+#include <winver.h>
+
+1 ICON "../utubmp3.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION VERSION_COMMA
+PRODUCTVERSION VERSION_COMMA
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "Harikanth Lingutla"
+            VALUE "FileDescription", "utubmp3 helper"
+            VALUE "FileVersion", VERSION_STR
+            VALUE "ProductName", "utubmp3"
+            VALUE "ProductVersion", VERSION_STR
+            VALUE "OriginalFilename", "utubmp3.exe"
+            VALUE "LegalCopyright", "MIT License"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

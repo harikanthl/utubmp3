@@ -4,7 +4,7 @@
         "description": "The display name for the extension."
     },
     "extension_description": {
-        "message": "Save the audio of a YouTube video as MP3 using yt-dlp on your Mac.",
+        "message": "Save the audio of a YouTube video as MP3 using yt-dlp on your computer.",
         "description": "Description of what the extension does."
     }
 }

@@ -39,6 +39,8 @@ must comply with them (for FFmpeg and LAME, that includes the LGPL's source-avai
   later**. It statically links **LAME**, https://lame.sourceforge.io, **GNU LGPL v2 or later**.
   Each GitHub Release includes the exact sources of both and the build script
   (`ffmpeg-<version>-source.tar`), so the binary can be rebuilt or relinked.
+  The Windows `ffmpeg.exe` (built with `TARGET=windows`) also statically links **zlib**,
+  https://zlib.net, under the **zlib License**.
 - **QuickJS-NG**, https://github.com/quickjs-ng/quickjs, **MIT License**.
 - **yt-dlp**, https://github.com/yt-dlp/yt-dlp, **The Unlicense**. It is downloaded at runtime
   into `~/Library/Application Support/utubmp3/bin` and self-updates.

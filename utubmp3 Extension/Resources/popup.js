@@ -1,6 +1,7 @@
 // Popup flow adapted from opalsaints/yt-dlp-chrome-extension (MIT).
 const ext = globalThis.browser ?? globalThis.chrome;  // Safari / Chrome
 const $ = (id) => document.getElementById(id);
+const SHOW_IN = navigator.userAgent.includes("Windows") ? "Show in folder" : "Show in Finder";
 
 function setStatus(type, message) {
     const s = $("status");
@@ -65,7 +66,7 @@ async function download(url) {
         loadFiles();
         const reveal = document.createElement("button");
         reveal.className = "secondary";
-        reveal.textContent = "Show in Finder";
+        reveal.textContent = SHOW_IN;
         reveal.onclick = () => ext.runtime.sendMessage({ action: "reveal", id: start.id });
         $("status").appendChild(reveal);
     } else {

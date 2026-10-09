@@ -4,6 +4,7 @@
 
 const ext = globalThis.browser ?? globalThis.chrome;  // Safari / Chrome
 const BUTTON_ID = "utubmp3-btn";
+const SHOW_IN = navigator.userAgent.includes("Windows") ? "show in folder" : "show in Finder";
 
 function currentVideoId() {
     const u = new URL(location.href);
@@ -59,7 +60,7 @@ async function startDownload(btn) {
         if (currentVideoId() !== videoId) return;
         if (job.status === "complete") {
             setButton(btn, "✅ Saved", "utubmp3-done");
-            btn.title = job.filename + " — click to show in Finder";
+            btn.title = job.filename + " — click to " + SHOW_IN;
             btn.onclick = () => ext.runtime.sendMessage({ action: "reveal", id: start.id });
         } else {
             setButton(btn, "⚠️ MP3", "utubmp3-error");

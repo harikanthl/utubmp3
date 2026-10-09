@@ -2,5 +2,7 @@ helper/bin/
 __pycache__/
 xcuserdata/
 utubmp3/Resources/bin/
+windows/bin/
+windows/helper/*.syso
 build/
 scripts/notarize-env.sh

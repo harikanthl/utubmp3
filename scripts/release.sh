@@ -1,6 +1,7 @@
 #!/bin/sh
 # Builds a Developer ID–signed, notarized, stapled utubmp3 for direct distribution
-# (GitHub Releases):  build/release/utubmp3.dmg, .zip and utubmp3-chrome.zip, plus the
+# (GitHub Releases):  build/release/utubmp3.dmg, .zip, utubmp3-chrome.zip and the Windows
+# installer utubmp3-setup.exe (windows/build.sh), plus the
 # source of the bundled FFmpeg and LAME (ffmpeg-<version>-source.tar) to attach for the LGPL.
 # Adapted from the Operator / Kekasatori notarization scripts.
 #
@@ -98,8 +99,10 @@ spctl --assess --type open --context context:primary-signature --verbose "$DMG"
 ZIP="$OUT/utubmp3.zip"
 ditto -c -k --keepParent "$APP" "$ZIP"
 ./scripts/build-chrome.sh
+./windows/build.sh
 echo "Release ready:"
 echo "  $DMG"
 echo "  $ZIP"
 echo "  $OUT/utubmp3-chrome.zip"
+echo "  $OUT/utubmp3-setup.exe"
 echo "  $FFMPEG_SRC   (attach to the release: FFmpeg and LAME source, LGPL)"

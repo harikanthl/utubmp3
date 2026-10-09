@@ -1,6 +1,6 @@
 # utubmp3
 
-A Safari (and Chrome) extension for macOS that saves the audio of a YouTube video as an MP3, with built-in tools to clean up or edit the MP3's tags.
+A Safari and Chrome extension for macOS and Windows that saves the audio of a YouTube video as an MP3, with built-in tools to clean up or edit the MP3's tags.
 
 Install the app, open it once, turn on the extension, and you're done. No terminal, Homebrew or Python needed.
 
@@ -9,14 +9,14 @@ Install the app, open it once, turn on the extension, and you're done. No termin
 - **One-click MP3**: a **⬇ MP3** button next to Like/Share on YouTube videos (it floats in the corner on Shorts), plus a toolbar popup.
 - **Best-quality audio** converted to MP3, with the video thumbnail embedded as cover art.
 - **Automatic tag cleanup**: every download gets proper tags (title, singers, album/movie, composer, lyricist, label) parsed from the video's description. Hashtags, social links, URLs and the duplicated description are removed, and the file is renamed to `Title - Album.mp3`.
-- **Tag editor**: the popup lists recent MP3s in `~/Downloads` with **Clean** and **Edit** buttons. Edit lets you change any tag; an empty field removes it. Audio and cover art are never re-encoded.
+- **Tag editor**: the popup lists recent MP3s in your Downloads folder with **Clean** and **Edit** buttons. Edit lets you change any tag; an empty field removes it. Audio and cover art are never re-encoded.
 - **Always up to date**: yt-dlp updates itself daily, so downloads keep working when YouTube changes.
-- **Runs locally**: nothing leaves your Mac except the download from YouTube.
+- **Runs locally**: nothing leaves your computer except the download from YouTube.
 
 ## Requirements
 
-- macOS 13 Ventura or later, Apple Silicon or Intel
-- Safari, or Chrome and other Chromium browsers
+- macOS 13 Ventura or later, Apple Silicon or Intel: Safari, or Chrome and other Chromium browsers
+- Windows 10 or 11 (x64; ARM runs it under emulation): Chrome, Edge or other Chromium browsers
 
 ## Install
 
@@ -36,24 +36,35 @@ The same extension works in Chrome and other Chromium browsers, using the same a
 2. Download [`utubmp3-chrome.zip`](https://github.com/harikanthl/utubmp3/releases/latest/download/utubmp3-chrome.zip) and unzip it somewhere it can stay.
 3. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the unzipped `utubmp3` folder.
 
+### Windows
+
+On Windows, a small installer sets up the background helper, and the extension is added to Chrome or Edge by hand:
+
+1. Download [`utubmp3-setup.exe`](https://github.com/harikanthl/utubmp3/releases/latest/download/utubmp3-setup.exe) and run it. It installs for your user only, without an admin prompt. The installer isn't code-signed yet, so Windows SmartScreen may say "Windows protected your PC"; click **More info ▸ Run anyway**.
+2. On the last page, leave **Open the extension folder** ticked and click **Finish**.
+3. Open `chrome://extensions` (or `edge://extensions`), turn on **Developer mode**, click **Load unpacked** and pick that folder (`%LOCALAPPDATA%\Programs\utubmp3\extension`).
+4. Open any YouTube video and click **⬇ MP3**. MP3s are saved to your Downloads folder.
+
+The helper starts automatically when you sign in. Opening **utubmp3** from the Start menu starts it if it isn't running.
+
 ## Use
 
 | Where | What to do |
 |---|---|
-| YouTube video page | Click **⬇ MP3**. It changes to ⏳ while converting and ✅ **Saved** when done; click ✅ to show the file in Finder. Hover over ⚠️ to see the error. |
-| Toolbar popup | **Download MP3** for the current video, with a **Show in Finder** button when it finishes. |
+| YouTube video page | Click **⬇ MP3**. It changes to ⏳ while converting and ✅ **Saved** when done; click ✅ to show the file in Finder (or File Explorer on Windows). Hover over ⚠️ to see the error. |
+| Toolbar popup | **Download MP3** for the current video, with a **Show in Finder** (**Show in folder** on Windows) button when it finishes. |
 | Popup ▸ Recent MP3s | **Clean** fixes a file's tags automatically; **Edit** opens a form with every tag. |
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---|---|
-| "Helper not running" in the popup | Open the utubmp3 app once; it restarts the helper. |
+| "Helper not running" in the popup | Open the utubmp3 app once; it restarts the helper. On Windows, open **utubmp3** from the Start menu. |
 | "Move utubmp3 to the Applications folder" | The app was opened from the disk image or from Downloads. Drag it to Applications in Finder and open it from there. |
 | "Helper is still setting up" | On first run, the helper is downloading yt-dlp (about 35 MB). Wait a moment. |
 | Download fails with `HTTP Error 403` | Usually fixed by yt-dlp's daily update; quitting and reopening the app forces an update check. Age-restricted or members-only videos aren't supported. |
 | Slow downloads | Without Deno or Node installed, the helper uses the bundled QuickJS to solve YouTube's challenges, which takes about 15–20 seconds per video. Installing [Deno](https://deno.com) or Node 22+ makes it faster; they're used automatically. |
-| Anything else | Check the helper log at `~/Library/Logs/utubmp3-helper.log`. |
+| Anything else | Check the helper log: `~/Library/Logs/utubmp3-helper.log` on a Mac, `%LOCALAPPDATA%\utubmp3\helper.log` on Windows. |
 
 ## Uninstall
 
@@ -65,6 +76,8 @@ The same extension works in Chrome and other Chromium browsers, using the same a
    rm -rf ~/Library/Application\ Support/utubmp3 ~/Library/Logs/utubmp3-helper.log
    ```
 3. Delete `utubmp3.app`.
+
+On Windows, remove **utubmp3** in **Settings ▸ Apps ▸ Installed apps**, then remove the extension in `chrome://extensions`. Your MP3s stay in Downloads.
 
 ## How it works
 
@@ -80,6 +93,8 @@ YouTube page ──► Safari extension ──HTTP──► helper (127.0.0.1:47
 - **ffmpeg** is bundled in the app.
 - **A JS runtime** for YouTube's challenges: Deno or Node if installed, otherwise the bundled QuickJS.
 
+On Windows the helper is `utubmp3.exe`, a Go port of the Swift helper with the same HTTP API and checks, so the same extension talks to either. The installer puts it in `%LOCALAPPDATA%\Programs\utubmp3` with `ffmpeg.exe` and `qjs.exe`, and starts it at sign-in from the `HKCU\…\Run` registry key. yt-dlp lives in `%LOCALAPPDATA%\utubmp3\bin`.
+
 ## Project layout
 
 | Path | What's there |
@@ -89,7 +104,9 @@ YouTube page ──► Safari extension ──HTTP──► helper (127.0.0.1:47
 | `utubmp3/HelperInstaller.swift` | Registers the launch agent |
 | `utubmp3/main.swift` | Starts the app, or the helper when run with `--helper` |
 | `scripts/fetch-tools.sh` | Builds the bundled ffmpeg and downloads QuickJS |
-| `scripts/build-ffmpeg.sh` | Builds the minimal universal ffmpeg (MP3 encoding, tags, cover art) |
+| `scripts/build-ffmpeg.sh` | Builds the minimal ffmpeg (MP3 encoding, tags, cover art) for macOS, or for Windows with `TARGET=windows` |
+| `windows/helper/` | Windows helper in Go: `server.go` (endpoints, downloads), `tags.go` (clean/edit), `tools.go` (yt-dlp, ffmpeg, JS runtime) |
+| `windows/installer.nsi`, `windows/build.sh` | Windows installer (NSIS) and the script that builds it from macOS |
 
 ## Building from source
 
@@ -104,9 +121,20 @@ In Xcode, set **Signing & Capabilities ▸ Team** to your own team (a free Apple
 
 Building from source doesn't need notarization: Gatekeeper only checks apps downloaded through a browser.
 
+### Windows
+
+The Windows installer is cross-built on a Mac:
+
+```sh
+brew install go mingw-w64 makensis
+./windows/build.sh         # build/release/utubmp3-setup.exe
+```
+
+`go test ./...` in `windows/helper` runs the tag-cleanup tests. The helper also runs on macOS for testing: `UTUBMP3_PORT=47399 go run .` (the Mac app's helper already uses port 47321).
+
 ### Releases (notarized)
 
-`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3.dmg` and `utubmp3.zip`, packages the Chrome extension as `utubmp3-chrome.zip`, and collects the source of the bundled FFmpeg and LAME (`ffmpeg-<version>-source.tar`); attach all four to the release. It needs a Developer ID Application certificate and notarization credentials, either:
+`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3.dmg` and `utubmp3.zip`, packages the Chrome extension as `utubmp3-chrome.zip`, builds the Windows installer `utubmp3-setup.exe`, and collects the source of the bundled FFmpeg and LAME (`ffmpeg-<version>-source.tar`); attach all five to the release. It needs a Developer ID Application certificate and notarization credentials, either:
 
 - a gitignored `scripts/notarize-env.sh` (or `NOTARIZE_ENV=/path/to/file`) that exports `APPLE_ID`, `APP_PW` (an app-specific password) and `TEAM_ID`, or
 - an existing `notarytool` keychain profile: `NOTARY_PROFILE=<name>`.
