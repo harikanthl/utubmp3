@@ -4,7 +4,7 @@
 //
 //  The background helper: `utubmp3 --helper`, started at login by launchd.
 //  Safari web extensions can't spawn processes, so the extension talks to this
-//  over http://127.0.0.1:8765 and it runs yt-dlp + ffmpeg.
+//  over http://127.0.0.1:47321 and it runs yt-dlp + ffmpeg.
 //
 //  The yt-dlp invocation is adapted from opalsaints/yt-dlp-chrome-extension
 //  (MIT License) — see THIRD_PARTY_NOTICES.md.
@@ -13,7 +13,7 @@
 import Foundation
 
 nonisolated enum HelperServer {
-    static let port: UInt16 = 8765
+    static let port: UInt16 = 47321
 
     private static let jobsLock = NSLock()
     nonisolated(unsafe) private static var jobs: [String: [String: Any]] = [:]
@@ -32,6 +32,11 @@ nonisolated enum HelperServer {
         dispatchMain()
     }
 
+    /// Blocks DNS rebinding: a page whose domain resolves to 127.0.0.1 sends its own Host.
+    static func isLocalHost(_ host: String?) -> Bool {
+        host == "127.0.0.1:\(port)" || host == "localhost:\(port)"
+    }
+
     /// Requests from ordinary web pages carry an http(s) Origin; the extension's don't.
     static func isWebOrigin(_ origin: String) -> Bool {
         origin.hasPrefix("http://") || origin.hasPrefix("https://")
@@ -42,6 +47,7 @@ nonisolated enum HelperServer {
     }
 
     static func handle(_ request: HTTPRequest) -> HTTPResponse {
+        guard isLocalHost(request.headers["host"]) else { return error(403, "forbidden") }
         if let origin = request.headers["origin"], isWebOrigin(origin) {
             return error(403, "forbidden")
         }
@@ -55,6 +61,7 @@ nonisolated enum HelperServer {
         case ("GET", "/health"):
             return HTTPResponse(status: 200, json: [
                 "ok": true,
+                "app": "utubmp3",
                 "ytdlp": FileManager.default.isExecutableFile(atPath: Tools.ytdlp.path),
                 "ffmpeg": FileManager.default.isExecutableFile(atPath: Tools.ffmpeg),
             ])

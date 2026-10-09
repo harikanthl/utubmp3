@@ -31,5 +31,5 @@
     },
 
     "permissions": [ "tabs" ],
-    "host_permissions": [ "*://*.youtube.com/*", "http://127.0.0.1:8765/*" ]
+    "host_permissions": [ "*://*.youtube.com/*", "http://127.0.0.1:47321/*" ]
 }

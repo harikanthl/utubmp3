@@ -62,7 +62,7 @@ Opening the app also sets up a small background helper (see [How it works](#how-
 Safari extensions can't run programs, so the app includes a background helper: the same executable started as `utubmp3 --helper`. Each time you open the app, it registers the helper as a per-user launch agent, so it starts at login, restarts if it exits, and always points at the current copy of the app.
 
 ```
-YouTube page ──► Safari extension ──HTTP──► helper (127.0.0.1:8765) ──► yt-dlp + ffmpeg ──► ~/Downloads
+YouTube page ──► Safari extension ──HTTP──► helper (127.0.0.1:47321) ──► yt-dlp + ffmpeg ──► ~/Downloads
 ```
 
 - The helper listens only on `127.0.0.1` and refuses requests that come from web pages.

@@ -31,7 +31,7 @@ async function loadVideo(tab) {
 
 async function checkHelper() {
     const h = await browser.runtime.sendMessage({ action: "health" });
-    if (h.ok) {
+    if (h.app === "utubmp3") {
         $("helper").textContent = h.ytdlp && h.ffmpeg
             ? "Helper running · saves to ~/Downloads"
             : "Helper is still setting up (downloading yt-dlp)…";

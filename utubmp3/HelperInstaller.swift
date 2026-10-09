@@ -50,7 +50,7 @@ nonisolated enum HelperInstaller {
         for _ in 0..<20 {
             if let (data, _) = try? await URLSession.shared.data(from: url),
                let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               json["ok"] as? Bool == true {
+               json["app"] as? String == "utubmp3" {
                 return true
             }
             try? await Task.sleep(for: .milliseconds(500))
