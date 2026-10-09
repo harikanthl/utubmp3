@@ -1,6 +1,6 @@
 # utubmp3
 
-A Safari extension for macOS that saves the audio of a YouTube video as an MP3, with built-in tools to clean up or edit the MP3's tags.
+A Safari (and Chrome) extension for macOS that saves the audio of a YouTube video as an MP3, with built-in tools to clean up or edit the MP3's tags.
 
 Install the app, open it once, turn on the extension, and you're done. No terminal, Homebrew or Python needed.
 
@@ -15,18 +15,26 @@ Install the app, open it once, turn on the extension, and you're done. No termin
 
 ## Requirements
 
-- macOS 26.2 or later (the app target's deployment target)
-- Safari
+- macOS 13 Ventura or later, Apple Silicon or Intel
+- Safari, or Chrome and other Chromium browsers
 
 ## Install
 
-1. Download the latest `utubmp3-<version>.dmg` from [Releases](https://github.com/harikanthl/utubmp3/releases), drag `utubmp3.app` to Applications, and open it once. The app is notarized by Apple.
+1. Download [`utubmp3.dmg`](https://github.com/harikanthl/utubmp3/releases/latest/download/utubmp3.dmg) from the latest release, drag `utubmp3.app` to Applications, and open it once. The app is notarized by Apple.
 2. Click **Quit and Open Safari Settings…** and turn on the **utubmp3** extension. Allow it on `youtube.com` when Safari asks.
 3. Open any YouTube video and click **⬇ MP3**.
 
 MP3s are saved to `~/Downloads`. On the first download, macOS asks whether utubmp3 may access the Downloads folder; click **Allow**.
 
 Opening the app also sets up a small background helper (see [How it works](#how-it-works)). It starts automatically at every login, and macOS may show a "Background Items Added" notification the first time.
+
+### Chrome (on a Mac)
+
+The same extension works in Chrome and other Chromium browsers, using the same app and helper. Google's Chrome Web Store doesn't allow YouTube downloaders, so it's installed by hand:
+
+1. Install and open the utubmp3 app once (steps above), so the helper is running.
+2. Download [`utubmp3-chrome.zip`](https://github.com/harikanthl/utubmp3/releases/latest/download/utubmp3-chrome.zip) and unzip it somewhere it can stay.
+3. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the unzipped `utubmp3` folder.
 
 ## Use
 
@@ -97,7 +105,7 @@ Building from source doesn't need notarization: Gatekeeper only checks apps down
 
 ### Releases (notarized)
 
-`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3-<version>.dmg` and `.zip` for GitHub Releases, and downloads the bundled FFmpeg's source (`ffmpeg-<version>.tar.xz`); attach all three to the release. It needs a Developer ID Application certificate and notarization credentials, either:
+`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3.dmg` and `utubmp3.zip`, packages the Chrome extension as `utubmp3-chrome.zip`, and downloads the bundled FFmpeg's source (`ffmpeg-<version>.tar.xz`); attach all four to the release. It needs a Developer ID Application certificate and notarization credentials, either:
 
 - a gitignored `scripts/notarize-env.sh` (or `NOTARIZE_ENV=/path/to/file`) that exports `APPLE_ID`, `APP_PW` (an app-specific password) and `TEAM_ID`, or
 - an existing `notarytool` keychain profile: `NOTARY_PROFILE=<name>`.

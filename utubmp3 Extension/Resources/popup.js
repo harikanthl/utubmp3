@@ -1,4 +1,5 @@
 // Popup flow adapted from opalsaints/yt-dlp-chrome-extension (MIT).
+const ext = globalThis.browser ?? globalThis.chrome;  // Safari / Chrome
 const $ = (id) => document.getElementById(id);
 
 function setStatus(type, message) {
@@ -15,7 +16,7 @@ function videoIdFromUrl(url) {
 
 async function loadVideo(tab) {
     try {
-        const info = await browser.tabs.sendMessage(tab.id, { action: "getVideoInfo" });
+        const info = await ext.tabs.sendMessage(tab.id, { action: "getVideoInfo" });
         if (info && !info.error) return info;
     } catch (e) { /* content script not ready; fall back to tab data */ }
     const videoId = videoIdFromUrl(tab.url);
@@ -30,7 +31,7 @@ async function loadVideo(tab) {
 }
 
 async function checkHelper() {
-    const h = await browser.runtime.sendMessage({ action: "health" });
+    const h = await ext.runtime.sendMessage({ action: "health" });
     if (h.app === "utubmp3") {
         $("helper").textContent = h.ytdlp && h.ffmpeg
             ? "Helper running · saves to ~/Downloads"
@@ -45,7 +46,7 @@ async function download(url) {
     btn.disabled = true;
     setStatus("downloading", "Downloading and converting…");
 
-    const start = await browser.runtime.sendMessage({ action: "download", url });
+    const start = await ext.runtime.sendMessage({ action: "download", url });
     if (start.status !== "downloading") {
         btn.disabled = false;
         setStatus("error", start.message || "Download failed");
@@ -55,7 +56,7 @@ async function download(url) {
     let job;
     do {
         await new Promise((r) => setTimeout(r, 1500));
-        job = await browser.runtime.sendMessage({ action: "status", id: start.id });
+        job = await ext.runtime.sendMessage({ action: "status", id: start.id });
     } while (job.status === "downloading");
 
     btn.disabled = false;
@@ -65,7 +66,7 @@ async function download(url) {
         const reveal = document.createElement("button");
         reveal.className = "secondary";
         reveal.textContent = "Show in Finder";
-        reveal.onclick = () => browser.runtime.sendMessage({ action: "reveal", id: start.id });
+        reveal.onclick = () => ext.runtime.sendMessage({ action: "reveal", id: start.id });
         $("status").appendChild(reveal);
     } else {
         setStatus("error", job.message || "Download failed");
@@ -87,7 +88,7 @@ function button(text, onclick, cls) {
 }
 
 async function loadFiles() {
-    const res = await browser.runtime.sendMessage({ action: "files" });
+    const res = await ext.runtime.sendMessage({ action: "files" });
     const list = $("files");
     list.textContent = "";
     if (!res.files || res.files.length === 0) {
@@ -114,7 +115,7 @@ async function loadFiles() {
 
 async function cleanFile(name) {
     setStatus("downloading", "Cleaning tags…");
-    const res = await browser.runtime.sendMessage({ action: "clean", name });
+    const res = await ext.runtime.sendMessage({ action: "clean", name });
     if (res.status === "ok") {
         setStatus("complete", "Cleaned: " + res.name);
         loadFiles();
@@ -124,7 +125,7 @@ async function cleanFile(name) {
 }
 
 async function openEditor(name) {
-    const res = await browser.runtime.sendMessage({ action: "tags", name });
+    const res = await ext.runtime.sendMessage({ action: "tags", name });
     if (!res.tags) {
         setStatus("error", res.message || "Could not read tags");
         return;
@@ -151,7 +152,7 @@ async function saveEditor(event) {
     const form = $("editor");
     const tags = Object.fromEntries(new FormData(form));
     setStatus("downloading", "Saving tags…");
-    const res = await browser.runtime.sendMessage({ action: "edit", name: form.dataset.name, tags });
+    const res = await ext.runtime.sendMessage({ action: "edit", name: form.dataset.name, tags });
     if (res.status === "ok") {
         form.hidden = true;
         setStatus("complete", "Saved: " + res.name);
@@ -166,7 +167,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadFiles();
     $("editor").onsubmit = saveEditor;
     $("cancel").onclick = () => { $("editor").hidden = true; };
-    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+    const [tab] = await ext.tabs.query({ active: true, currentWindow: true });
     const info = tab && /(^|\.)youtube\.com$/.test(new URL(tab.url || "about:blank").hostname)
         ? await loadVideo(tab)
         : null;

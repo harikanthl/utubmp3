@@ -1,6 +1,6 @@
 #!/bin/sh
 # Builds a Developer ID–signed, notarized, stapled utubmp3 for direct distribution
-# (GitHub Releases):  build/release/utubmp3-<version>.dmg  and  .zip, plus the
+# (GitHub Releases):  build/release/utubmp3.dmg, .zip and utubmp3-chrome.zip, plus the
 # source of the bundled FFmpeg (ffmpeg-<version>.tar.xz) to attach for the GPL.
 # Adapted from the Operator / Kekasatori notarization scripts.
 #
@@ -64,7 +64,7 @@ fi
 
 # 3. DMG. hdiutil hits TCC "Operation not permitted" reading from ~/Desktop and
 #    other protected folders, so stage the app in /tmp first.
-DMG="$OUT/utubmp3-$VERSION.dmg"
+DMG="$OUT/utubmp3.dmg"  # fixed names, so releases/latest/download/... links keep working
 STAGE="$(mktemp -d /tmp/utubmp3-dmg.XXXXXX)"
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
@@ -88,9 +88,11 @@ xcrun stapler staple "$APP"
 spctl --assess --type execute --verbose "$APP"
 spctl --assess --type open --context context:primary-signature --verbose "$DMG"
 
-ZIP="$OUT/utubmp3-$VERSION.zip"
+ZIP="$OUT/utubmp3.zip"
 ditto -c -k --keepParent "$APP" "$ZIP"
+./scripts/build-chrome.sh
 echo "Release ready:"
 echo "  $DMG"
 echo "  $ZIP"
+echo "  $OUT/utubmp3-chrome.zip"
 echo "  $FFMPEG_SRC   (attach to the release: FFmpeg's GPL source)"

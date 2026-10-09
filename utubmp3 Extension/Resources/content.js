@@ -2,6 +2,7 @@
 // request for video info. Video-info extraction adapted from
 // opalsaints/yt-dlp-chrome-extension (MIT).
 
+const ext = globalThis.browser ?? globalThis.chrome;  // Safari / Chrome
 const BUTTON_ID = "utubmp3-btn";
 
 function currentVideoId() {
@@ -43,7 +44,7 @@ async function startDownload(btn) {
     if (!videoId) return;
     setButton(btn, "⏳ Converting…", null, true);
 
-    const start = await browser.runtime.sendMessage({ action: "download", url: location.href });
+    const start = await ext.runtime.sendMessage({ action: "download", url: location.href });
     if (start.status !== "downloading") {
         setButton(btn, "⚠️ MP3", "utubmp3-error");
         btn.title = start.message || "Download failed";
@@ -52,14 +53,14 @@ async function startDownload(btn) {
 
     while (true) {
         await new Promise((r) => setTimeout(r, 1500));
-        const job = await browser.runtime.sendMessage({ action: "status", id: start.id });
+        const job = await ext.runtime.sendMessage({ action: "status", id: start.id });
         if (job.status === "downloading") continue;
         // The user may have navigated to another video meanwhile; only touch our button if it's the same one.
         if (currentVideoId() !== videoId) return;
         if (job.status === "complete") {
             setButton(btn, "✅ Saved", "utubmp3-done");
             btn.title = job.filename + " — click to show in Finder";
-            btn.onclick = () => browser.runtime.sendMessage({ action: "reveal", id: start.id });
+            btn.onclick = () => ext.runtime.sendMessage({ action: "reveal", id: start.id });
         } else {
             setButton(btn, "⚠️ MP3", "utubmp3-error");
             btn.title = job.message || "Download failed";
@@ -117,6 +118,6 @@ new MutationObserver(() => {
 }).observe(document.documentElement, { childList: true, subtree: true });
 ensureButton();
 
-browser.runtime.onMessage.addListener((request) => {
-    if (request.action === "getVideoInfo") return Promise.resolve(extractVideoInfo());
+ext.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "getVideoInfo") sendResponse(extractVideoInfo());
 });

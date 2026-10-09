@@ -1,5 +1,8 @@
 // Relays requests from the content script and popup to the local helper
 // (the utubmp3 app running with --helper), which runs yt-dlp + ffmpeg.
+// Safari exposes `browser`, Chrome `chrome`; both support promises in MV3.
+const ext = globalThis.browser ?? globalThis.chrome;
+
 const HELPER = "http://127.0.0.1:47321";
 
 async function call(path, body) {
@@ -21,7 +24,7 @@ async function call(path, body) {
     }
 }
 
-browser.runtime.onMessage.addListener((request) => {
+function route(request) {
     switch (request.action) {
         case "health":   return call("/health");
         case "download": return call("/download", { url: request.url });
@@ -32,4 +35,11 @@ browser.runtime.onMessage.addListener((request) => {
         case "clean":    return call("/clean", { name: request.name });
         case "edit":     return call("/edit", { name: request.name, tags: request.tags });
     }
+}
+
+ext.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    const reply = route(request);
+    if (!reply) return false;
+    reply.then(sendResponse);
+    return true;  // keep the channel open for the async reply
 });
