@@ -18,6 +18,12 @@ nonisolated enum HelperInstaller {
 
     static func install() throws {
         guard let executable = Bundle.main.executablePath else { throw ToolError.failed("no executable path") }
+        // Opened from the disk image, or translocated by Gatekeeper (e.g. run from Downloads):
+        // that path disappears, so a launch agent pointing at it would break after a reboot.
+        let appPath = Bundle.main.bundlePath
+        if appPath.contains("/AppTranslocation/") || appPath.hasPrefix("/Volumes/") {
+            throw ToolError.failed("move utubmp3 to the Applications folder, then open it again.")
+        }
         let plist: [String: Any] = [
             "Label": label,
             "ProgramArguments": [executable, "--helper"],

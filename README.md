@@ -41,6 +41,7 @@ Opening the app also sets up a small background helper (see [How it works](#how-
 | Problem | Fix |
 |---|---|
 | "Helper not running" in the popup | Open the utubmp3 app once; it restarts the helper. |
+| "Move utubmp3 to the Applications folder" | The app was opened from the disk image or from Downloads. Drag it to Applications in Finder and open it from there. |
 | "Helper is still setting up" | On first run, the helper is downloading yt-dlp (about 35 MB). Wait a moment. |
 | Download fails with `HTTP Error 403` | Usually fixed by yt-dlp's daily update; quitting and reopening the app forces an update check. Age-restricted or members-only videos aren't supported. |
 | Slow downloads | Without Deno or Node installed, the helper uses the bundled QuickJS to solve YouTube's challenges, which takes about 15–20 seconds per video. Installing [Deno](https://deno.com) or Node 22+ makes it faster; they're used automatically. |
