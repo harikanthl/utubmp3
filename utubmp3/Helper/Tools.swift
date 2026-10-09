@@ -104,18 +104,28 @@ nonisolated enum Tools {
         _ = try FileManager.default.replaceItemAt(ytdlp, withItemAt: part)
     }
 
-    /// Installs yt-dlp if needed, then runs `yt-dlp -U` now and once a day.
+    private static let updateLock = NSLock()
+
+    /// Installs yt-dlp if needed and runs `yt-dlp -U`. Serialized, so the daily
+    /// update and a retry after a failed download don't both replace the binary.
+    static func updateYtdlp() {
+        updateLock.lock()
+        defer { updateLock.unlock() }
+        do {
+            try ensureYtdlp()
+            let result = try run(ytdlp.path, ["-U"], timeout: 300)
+            let lines = (result.stdout + result.stderr).split(separator: "\n")
+            helperLog("yt-dlp -U: \(lines.last.map(String.init) ?? "exit \(result.status)")")
+        } catch {
+            helperLog("yt-dlp update failed: \(error)")
+        }
+    }
+
+    /// Updates yt-dlp now and once a day.
     static func keepYtdlpUpdated() {
         Thread.detachNewThread {
             while true {
-                do {
-                    try ensureYtdlp()
-                    let result = try run(ytdlp.path, ["-U"], timeout: 300)
-                    let lines = (result.stdout + result.stderr).split(separator: "\n")
-                    helperLog("yt-dlp -U: \(lines.last.map(String.init) ?? "exit \(result.status)")")
-                } catch {
-                    helperLog("yt-dlp update failed: \(error)")
-                }
+                updateYtdlp()
                 Thread.sleep(forTimeInterval: updateInterval)
             }
         }

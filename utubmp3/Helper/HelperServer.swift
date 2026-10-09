@@ -151,7 +151,13 @@ nonisolated enum HelperServer {
                 "-o", Tools.outputDir.appendingPathComponent("%(title)s.%(ext)s").path,
                 "https://www.youtube.com/watch?v=\(videoID)",
             ]
-            let result = try Tools.run(Tools.ytdlp.path, args, timeout: 900)
+            var result = try Tools.run(Tools.ytdlp.path, args, timeout: 900)
+            if result.status != 0 {
+                // YouTube changes often break yt-dlp between daily updates: update and retry once.
+                helperLog("download failed, updating yt-dlp and retrying")
+                Tools.updateYtdlp()
+                result = try Tools.run(Tools.ytdlp.path, args, timeout: 900)
+            }
             guard result.status == 0 else {
                 let message = (result.stderr.isEmpty ? result.stdout : result.stderr)
                     .trimmingCharacters(in: .whitespacesAndNewlines)

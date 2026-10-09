@@ -36,7 +36,9 @@ must comply with them (for FFmpeg, that includes the GPL's source-availability t
 
 - **FFmpeg**, static build from https://ffmpeg.martin-riedl.de, configured with
   `--enable-gpl --enable-version3`, so it is licensed under the **GNU GPL v3**.
-  Source: https://ffmpeg.org/download.html
+  Each GitHub Release includes the source of the bundled version (`ffmpeg-<version>.tar.xz`,
+  from https://ffmpeg.org/releases/). The build script and the sources of the libraries it
+  links are at https://git.martin-riedl.de/ffmpeg/build-script.
 - **QuickJS-NG**, https://github.com/quickjs-ng/quickjs, **MIT License**.
 - **yt-dlp**, https://github.com/yt-dlp/yt-dlp, **The Unlicense**. It is downloaded at runtime
   into `~/Library/Application Support/utubmp3/bin` and self-updates.

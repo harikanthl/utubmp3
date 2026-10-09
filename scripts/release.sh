@@ -1,6 +1,7 @@
 #!/bin/sh
 # Builds a Developer ID–signed, notarized, stapled utubmp3 for direct distribution
-# (GitHub Releases):  build/release/utubmp3-<version>.dmg  and  .zip
+# (GitHub Releases):  build/release/utubmp3-<version>.dmg  and  .zip, plus the
+# source of the bundled FFmpeg (ffmpeg-<version>.tar.xz) to attach for the GPL.
 # Adapted from the Operator / Kekasatori notarization scripts.
 #
 # Notarization credentials, either:
@@ -28,6 +29,11 @@ mkdir -p "$OUT"
 [ -x utubmp3/Resources/bin/ffmpeg ] && [ -x utubmp3/Resources/bin/qjs ] || ./scripts/fetch-tools.sh
 codesign --force --options runtime --timestamp --sign "$IDENTITY" \
     utubmp3/Resources/bin/ffmpeg utubmp3/Resources/bin/qjs
+
+# FFmpeg is GPL: each release ships the exact source of the bundled version.
+FFMPEG_VERSION="$(utubmp3/Resources/bin/ffmpeg -version | head -1 | sed -E 's/^ffmpeg version ([0-9.]+).*/\1/')"
+FFMPEG_SRC="$OUT/ffmpeg-$FFMPEG_VERSION.tar.xz"
+curl -fsSL "https://ffmpeg.org/releases/ffmpeg-$FFMPEG_VERSION.tar.xz" -o "$FFMPEG_SRC"
 
 # 2. Archive and export with Developer ID signing.
 xcodebuild -project utubmp3.xcodeproj -scheme utubmp3 -configuration Release \
@@ -87,3 +93,4 @@ ditto -c -k --keepParent "$APP" "$ZIP"
 echo "Release ready:"
 echo "  $DMG"
 echo "  $ZIP"
+echo "  $FFMPEG_SRC   (attach to the release: FFmpeg's GPL source)"

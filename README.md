@@ -96,7 +96,7 @@ Building from source doesn't need notarization: Gatekeeper only checks apps down
 
 ### Releases (notarized)
 
-`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3-<version>.dmg` and `.zip` for GitHub Releases. It needs a Developer ID Application certificate and notarization credentials, either:
+`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3-<version>.dmg` and `.zip` for GitHub Releases, and downloads the bundled FFmpeg's source (`ffmpeg-<version>.tar.xz`); attach all three to the release. It needs a Developer ID Application certificate and notarization credentials, either:
 
 - a gitignored `scripts/notarize-env.sh` (or `NOTARIZE_ENV=/path/to/file`) that exports `APPLE_ID`, `APP_PW` (an app-specific password) and `TEAM_ID`, or
 - an existing `notarytool` keychain profile: `NOTARY_PROFILE=<name>`.
