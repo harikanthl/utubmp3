@@ -29,16 +29,16 @@ SOFTWARE.
 
 ## Bundled and downloaded tools
 
-These are not part of this repository. `scripts/fetch-tools.sh` downloads them into
+These are not part of this repository. `scripts/fetch-tools.sh` builds or downloads them into
 `utubmp3/Resources/bin` for building, and the app downloads yt-dlp at runtime. They run as
 separate programs and keep their own licenses. If you distribute a built `utubmp3.app`, you
-must comply with them (for FFmpeg, that includes the GPL's source-availability terms).
+must comply with them (for FFmpeg and LAME, that includes the LGPL's source-availability terms).
 
-- **FFmpeg**, static build from https://ffmpeg.martin-riedl.de, configured with
-  `--enable-gpl --enable-version3`, so it is licensed under the **GNU GPL v3**.
-  Each GitHub Release includes the source of the bundled version (`ffmpeg-<version>.tar.xz`,
-  from https://ffmpeg.org/releases/). The build script and the sources of the libraries it
-  links are at https://git.martin-riedl.de/ffmpeg/build-script.
+- **FFmpeg**, https://ffmpeg.org, built by `scripts/build-ffmpeg.sh` with only the parts
+  utubmp3 uses and without `--enable-gpl`, so it is licensed under the **GNU LGPL v2.1 or
+  later**. It statically links **LAME**, https://lame.sourceforge.io, **GNU LGPL v2 or later**.
+  Each GitHub Release includes the exact sources of both and the build script
+  (`ffmpeg-<version>-source.tar`), so the binary can be rebuilt or relinked.
 - **QuickJS-NG**, https://github.com/quickjs-ng/quickjs, **MIT License**.
 - **yt-dlp**, https://github.com/yt-dlp/yt-dlp, **The Unlicense**. It is downloaded at runtime
   into `~/Library/Application Support/utubmp3/bin` and self-updates.

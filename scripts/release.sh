@@ -1,7 +1,7 @@
 #!/bin/sh
 # Builds a Developer ID–signed, notarized, stapled utubmp3 for direct distribution
 # (GitHub Releases):  build/release/utubmp3.dmg, .zip and utubmp3-chrome.zip, plus the
-# source of the bundled FFmpeg (ffmpeg-<version>.tar.xz) to attach for the GPL.
+# source of the bundled FFmpeg and LAME (ffmpeg-<version>-source.tar) to attach for the LGPL.
 # Adapted from the Operator / Kekasatori notarization scripts.
 #
 # Notarization credentials, either:
@@ -30,10 +30,17 @@ mkdir -p "$OUT"
 codesign --force --options runtime --timestamp --sign "$IDENTITY" \
     utubmp3/Resources/bin/ffmpeg utubmp3/Resources/bin/qjs
 
-# FFmpeg is GPL: each release ships the exact source of the bundled version.
+# FFmpeg and LAME are LGPL and linked statically: each release ships their exact source
+# and the script that builds the bundled binary from it.
 FFMPEG_VERSION="$(utubmp3/Resources/bin/ffmpeg -version | head -1 | sed -E 's/^ffmpeg version ([0-9.]+).*/\1/')"
-FFMPEG_SRC="$OUT/ffmpeg-$FFMPEG_VERSION.tar.xz"
-curl -fsSL "https://ffmpeg.org/releases/ffmpeg-$FFMPEG_VERSION.tar.xz" -o "$FFMPEG_SRC"
+LAME_VERSION="$(sed -n 's/^LAME_VERSION="\(.*\)"/\1/p' scripts/build-ffmpeg.sh)"
+FFMPEG_SRC="$OUT/ffmpeg-$FFMPEG_VERSION-source.tar"
+SRC_STAGE="$(mktemp -d)"
+curl -fsSL "https://ffmpeg.org/releases/ffmpeg-$FFMPEG_VERSION.tar.xz" -o "$SRC_STAGE/ffmpeg-$FFMPEG_VERSION.tar.xz"
+curl -fsSL "https://downloads.sourceforge.net/project/lame/lame/$LAME_VERSION/lame-$LAME_VERSION.tar.gz" -o "$SRC_STAGE/lame-$LAME_VERSION.tar.gz"
+cp scripts/build-ffmpeg.sh "$SRC_STAGE/"
+tar -cf "$FFMPEG_SRC" -C "$SRC_STAGE" .
+rm -rf "$SRC_STAGE"
 
 # 2. Archive and export with Developer ID signing.
 xcodebuild -project utubmp3.xcodeproj -scheme utubmp3 -configuration Release \
@@ -95,4 +102,4 @@ echo "Release ready:"
 echo "  $DMG"
 echo "  $ZIP"
 echo "  $OUT/utubmp3-chrome.zip"
-echo "  $FFMPEG_SRC   (attach to the release: FFmpeg's GPL source)"
+echo "  $FFMPEG_SRC   (attach to the release: FFmpeg and LAME source, LGPL)"

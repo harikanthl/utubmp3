@@ -88,14 +88,15 @@ YouTube page ──► Safari extension ──HTTP──► helper (127.0.0.1:47
 | `utubmp3/Helper/` | Background helper: `HelperServer.swift` (endpoints, downloads), `HTTPServer.swift`, `Tags.swift` (clean/edit), `Tools.swift` (yt-dlp, ffmpeg, JS runtime) |
 | `utubmp3/HelperInstaller.swift` | Registers the launch agent |
 | `utubmp3/main.swift` | Starts the app, or the helper when run with `--helper` |
-| `scripts/fetch-tools.sh` | Downloads the bundled ffmpeg and QuickJS |
+| `scripts/fetch-tools.sh` | Builds the bundled ffmpeg and downloads QuickJS |
+| `scripts/build-ffmpeg.sh` | Builds the minimal universal ffmpeg (MP3 encoding, tags, cover art) |
 
 ## Building from source
 
 ```sh
 git clone https://github.com/harikanthl/utubmp3.git
 cd utubmp3
-./scripts/fetch-tools.sh   # ffmpeg + QuickJS into utubmp3/Resources/bin (not committed)
+./scripts/fetch-tools.sh   # ffmpeg (built from source, ~2 min) + QuickJS into utubmp3/Resources/bin (not committed)
 open utubmp3.xcodeproj     # build & run the utubmp3 scheme
 ```
 
@@ -105,7 +106,7 @@ Building from source doesn't need notarization: Gatekeeper only checks apps down
 
 ### Releases (notarized)
 
-`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3.dmg` and `utubmp3.zip`, packages the Chrome extension as `utubmp3-chrome.zip`, and downloads the bundled FFmpeg's source (`ffmpeg-<version>.tar.xz`); attach all four to the release. It needs a Developer ID Application certificate and notarization credentials, either:
+`scripts/release.sh` builds a Developer ID–signed, notarized and stapled `build/release/utubmp3.dmg` and `utubmp3.zip`, packages the Chrome extension as `utubmp3-chrome.zip`, and collects the source of the bundled FFmpeg and LAME (`ffmpeg-<version>-source.tar`); attach all four to the release. It needs a Developer ID Application certificate and notarization credentials, either:
 
 - a gitignored `scripts/notarize-env.sh` (or `NOTARIZE_ENV=/path/to/file`) that exports `APPLE_ID`, `APP_PW` (an app-specific password) and `TEAM_ID`, or
 - an existing `notarytool` keychain profile: `NOTARY_PROFILE=<name>`.
@@ -116,6 +117,6 @@ The app target runs without App Sandbox (it starts the helper and saves to `~/Do
 
 utubmp3 is released under the [MIT License](LICENSE).
 
-The bundled and downloaded tools keep their own licenses: FFmpeg (GPLv3), QuickJS-NG (MIT) and yt-dlp (Unlicense). If you distribute a built app, follow their terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Parts of the helper and extension are adapted from [opalsaints/yt-dlp-chrome-extension](https://github.com/opalsaints/yt-dlp-chrome-extension) (MIT).
+The bundled and downloaded tools keep their own licenses: FFmpeg and LAME (LGPL), QuickJS-NG (MIT) and yt-dlp (Unlicense). If you distribute a built app, follow their terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Parts of the helper and extension are adapted from [opalsaints/yt-dlp-chrome-extension](https://github.com/opalsaints/yt-dlp-chrome-extension) (MIT).
 
 Only download content you have the rights to, such as your own uploads or openly licensed videos. Downloading from YouTube may be against its Terms of Service.
